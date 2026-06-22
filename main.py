@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
+from sklearn.ensemble import RandomForestClassifier
 
 pd.set_option('display.width', 0)
 
@@ -92,7 +93,7 @@ features_train, features_test, target_train, target_test = train_test_split(
 # model.fit(features_train_smote, target_train_smote)
 # target_predict = model.predict(features_test)
 
-# Classification Report when trained using SMOTE data
+# Classification Report of Logistic Regression when trained using SMOTE data
 #               precision    recall  f1-score   support
 #
 #            0       1.00      0.97      0.99     55031
@@ -108,7 +109,7 @@ features_train, features_test, target_train, target_test = train_test_split(
 # model.fit(features_train[important_features_columns],target_train)
 # target_predict = model.predict(features_test[important_features_columns])
 
-# Classification Report when trained using important features only
+# Classification Report  of Logistic Regression when trained using important features only
 #               precision    recall  f1-score   support
 #
 #            0       1.00      1.00      1.00     55031
@@ -124,7 +125,7 @@ features_train, features_test, target_train, target_test = train_test_split(
 # model.fit(features_train, target_train)
 # target_predict = model.predict(features_test)
 
-# Classification Report when trained using original data (Best among these three)
+# Classification Report of Logistic Regression when trained using original data (Best among these three)
 #               precision    recall  f1-score   support
 #
 #            0       1.00      1.00      1.00     55031
@@ -133,7 +134,23 @@ features_train, features_test, target_train, target_test = train_test_split(
 #     accuracy                           1.00     55133
 #    macro avg       0.90      0.81      0.85     55133
 # weighted avg       1.00      1.00      1.00     55133
-#------------------------------------------------------
+# ------------------------------------------------------
+
+# -------------------------------------------------------------
+# model = RandomForestClassifier(n_estimators=50, random_state=42)
+# model.fit(features_train, target_train)
+# target_predict = model.predict(features_test)
+
+# Classification Report of Random Forest when trained using original data
+#               precision    recall  f1-score   support
+#
+#            0       1.00      1.00      1.00     55031
+#            1       0.90      0.72      0.80       102
+#
+#     accuracy                           1.00     55133
+#    macro avg       0.95      0.86      0.90     55133
+# weighted avg       1.00      1.00      1.00     55133
+# ---------------------------------------------------------------
 
 # print("Classification Report")
 # print(classification_report(target_test, target_predict))
