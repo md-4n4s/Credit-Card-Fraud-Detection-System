@@ -9,6 +9,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
+from concurrent.futures import ProcessPoolExecutor
 
 pd.set_option('display.width', 0)
 
@@ -191,6 +192,12 @@ def compare_models(models, names, features_tests, target_test):
     plt.legend()
     plt.show()
 
+# Train, predict and evaluate
+def train_model(training_function, features_train, target_train):
+    model = training_function(features_train, target_train)
+
+    return model
+
 # Main pipeline
 def main():
     # Load dataset
@@ -220,35 +227,33 @@ def main():
     # Handle imbalance
     features_train_smote, target_train_smote = apply_smote(features_train, target_train)
 
-    # Logistic Regression models
-    model1 = train_logistic_regression(features_train_smote, target_train_smote)
-    predict1 = predict(model1, features_test)
-    evaluate_model("Logistic Regression (SMOTE)",target_test, predict1)
+    # Parallel Processing
+    with ProcessPoolExecutor() as executor:
+        process1 = executor.submit(train_model, train_logistic_regression, features_train_smote, target_train_smote)
+        process2 = executor.submit(train_model, train_logistic_regression, features_train[important_features_columns], target_train)
+        process3 = executor.submit(train_model, train_logistic_regression, features_train, target_train)
+        process4 = executor.submit(train_model, train_random_forest, features_train_smote, target_train_smote)
+        process5 = executor.submit(train_model, train_random_forest, features_train[important_features_columns], target_train)
+        process6 = executor.submit(train_model, train_random_forest, features_train, target_train)
 
-    model2 = train_logistic_regression(
-        features_train[important_features_columns],
-        target_train
-    )
+    model1 = process1.result()
+    model2 = process2.result()
+    model3 = process3.result()
+    model4 = process4.result()
+    model5 = process5.result()
+    model6 = process6.result()
+
+    # Evaluation
+    predict1 = predict(model1, features_test)
+    evaluate_model("Logistic Regression (SMOTE)", target_test, predict1)
     predict2 = predict(model2, features_test[important_features_columns])
     evaluate_model("Logistic Regression (Important Features)", target_test, predict2)
-
-    model3 = train_logistic_regression(features_train, target_train)
     predict3 = predict(model3, features_test)
     evaluate_model("Logistic Regression (Original Data)", target_test, predict3)
-
-    # Random Forest models
-    model4 = train_random_forest(features_train_smote, target_train_smote)
     predict4 = predict(model4, features_test)
     evaluate_model("Random Forest (SMOTE)", target_test, predict4)
-
-    model5 = train_random_forest(
-        features_train[important_features_columns],
-        target_train
-    )
     predict5 = predict(model5, features_test[important_features_columns])
     evaluate_model("Random Forest (Important Features)", target_test, predict5)
-
-    model6 = train_random_forest(features_train, target_train)
     predict6 = predict(model6, features_test)
     evaluate_model("Random Forest (Original Data)", target_test, predict6)
 
